@@ -14,6 +14,6 @@ How to use
 In order to use LP-dialog you just have to download the source code and include it in your html code 
 AFTER the jquery script tag
   ```html
-<script type='text/javascript' src='path/to/lp_dialog.js'></scrript>
+<script type='text/javascript' src='path/to/lp_dialog.js'></script>
 ```
 Make sure that you also have the images folder in the same directory for the plugin to work properly

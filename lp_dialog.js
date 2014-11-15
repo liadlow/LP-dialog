@@ -106,46 +106,44 @@
 
 	};
 
-	$.fn.hvcenter = function(relevantTo, extra_top_margin) {
+	$.fn.hvcenter = function(options) {
 	/*
 	 * horizontally and vertically center the
 	 * element within its parent or window
-	 * 
-	 * @relevantTo : (optional) whether the element will be centered relevant to its parent or the window
-	 * @extra_top_margin : (optional) add extra top margin to the centered element
+	 *
+	 * @options : (optional) set of options for behaviour
 	*/
 
-		relevantTo = relevantTo || "parent";
-		extra_top_margin = extra_top_margin || 0;
+		/*
+		 * relevantTo : whether the element will be centered relevant to its parent or the window
+	 	 * extra_top_margin : add extra top margin to the centered element
+		*/
+		var settings = $.extend({
+			relevantTo: "parent",
+			extra_top_margin: 0,
+		}, options);
 
 		// check if element is in DOM
 		if(this.offset() == null || this.offset() == undefined) return;
 
-		// calculate top margin relative to parent or window and place element in center
-		var top_margin; 
-		if(relevantTo === "parent") {
-			top_margin = this.parent().height()/2 - this.position().top - this.height()/2 + extra_top_margin;
+		// calculate top and side margin relative to parent or window and place element in center
+		var top_margin, side_margin; 
+		if(settings.relevantTo === "parent") {
+			top_margin = this.parent().height()/2 - this.position().top - this.height()/2 + settings.extra_top_margin;
+			side_margin = this.parent().width()/2 - this.width()/2;
 		}
-		else if(relevantTo === "window") {
-			top_margin = $(window).height()/2 - this.offset().top - this.height()/2 + extra_top_margin;
+		else if(settings.relevantTo === "window") {
+			top_margin = $(window).height()/2 - this.offset().top - this.height()/2 + settings.extra_top_margin;
+			side_margin = $(window).width()/2 - this.width()/2;
 		}
 
+		// if element is bigger than parent/window:
+		if(top_margin < 0) top_margin = 0;
+		if(side_margin < 0) side_margin = 0;
+
 		// if position relative use auto margin, else calculate margin from parent's or window's width
-		if(this.css("position") === "relative") {
-			this.css({"margin-top": top_margin, "margin-right": "auto", "margin-left": "auto"});
-		}
-		else {
-			var side_margin;
-			if(relevantTo === "parent") {
-				side_margin = this.parent().width()/2 - this.width()/2;
-			}
-			else if(relevantTo === "window") {
-				side_margin = $(window).width()/2 - this.width()/2;
-			}
-			
-			if(side_margin <= 0) return; // do nothing if child element is bigger than the parent
-			this.css({"margin-top": top_margin, "margin-right": side_margin, "margin-left": side_margin});
-		}
+		if(this.css("position") === "relative") this.css({"margin-top": top_margin, "margin-right": "auto", "margin-left": "auto"});
+		else this.css({"margin-top": top_margin, "margin-right": side_margin, "margin-left": side_margin});
 	};
 
 	$.lp_dialog = function(action, message, options) {
@@ -199,6 +197,7 @@
 		 * placeholder : used by prompt and it's the default text displayed in the text input
 		 * inputWidth : the width of input element in prompt dialog
 		 * inputHeight : the height of the input element in prompt dialog
+	 	 * pop : add pop-up and close animation
 		*/
 		var settings = $.extend({ 
 			window_width:450,
@@ -226,7 +225,8 @@
 			buttons_num: 1,
 			placeholder: "",
 			inputWidth: "auto",
-			inputHeight: "auto"
+			inputHeight: "auto",
+			pop: true
 		}, options);
 
 		// common styles for all windows
@@ -491,6 +491,13 @@
 
 		$("#lp_dialog_window").hvcenter();
 
+		// pop-up animation
+		if(settings.pop) {
+			var finheight = $("#lp_dialog_window").height(), finwidth = $("#lp_dialog_window").width();
+			$("#lp_dialog_window").css({"height": 0, "width": 0, "top": finheight/2, "left": finwidth/2});
+			$("#lp_dialog_window").animate({height: finheight+10, width: finwidth+10, top: -5, left: -5}).animate({height: finheight, width: finwidth, top: 0, left: 0}, 250);
+		}
+
 		// common listeners for all dialog windows
 		if(settings.exit_on_out_click) {
 			$(".body_disabler").click(close_window);
@@ -509,8 +516,19 @@
 		/**********helper functions**********/
 
 		function close_window() {
-			$("div[id^='lp_dialog_']").remove();
-			$("body").disabler("enable");
+			// close animation
+			if(settings.pop) {
+				var height = $("#lp_dialog_window").height(), width = $("#lp_dialog_window").width();
+				$("#lp_dialog_window").animate({height: 0, width: 0, top: 0, left: width}, 300, function() {
+					$("div[id^='lp_dialog_']").remove();
+					$("body").disabler("enable");
+				});
+
+			}
+			else {
+				$("div[id^='lp_dialog_']").remove();
+				$("body").disabler("enable");
+			}
 		}
 
 	};

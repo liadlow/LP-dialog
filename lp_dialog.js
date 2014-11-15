@@ -3,7 +3,7 @@
 /* Author : George Vasalos
 /* MIT license: http://opensource.org/licenses/MIT
 /* GitHub : https://github.com/liadlow/LP-dialog
-/* Description : A jQuery plugin for dialog windows (with 2 additional functions)
+/* Description : A jQuery plugin for dialog windows
 /* How to use? : Check the GitHub README
 /* ----------------------------------------------- */
 
@@ -109,7 +109,7 @@
 	$.fn.hvcenter = function(relevantTo, extra_top_margin) {
 	/*
 	 * horizontally and vertically center the
-	 * element within its parent
+	 * element within its parent or window
 	 * 
 	 * @relevantTo : (optional) whether the element will be centered relevant to its parent or the window
 	 * @extra_top_margin : (optional) add extra top margin to the centered element

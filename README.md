@@ -43,10 +43,18 @@ $("body").disabler("disable", {canscroll: false});
 
 dialog:
 - alert:
+
         $.lp_dialog("alert", "I am an example of LP-dialog :)");
+
 - confirm:
+
         $.lp_dialog("confirm", "Will you use LP-dialog?", {yfunction: function(){var happy = true}, nfunction: function(){var happy = false}});
+
 - prompt:
+
         $.lp_dialog("prompt", "Enter your favorite movie", {placeholder: "Lord of the Rings", yfunction: function(answer){var favmovie = answer;}});
+
 - custom:
+
         $.lp_dialog("custom", "Add your homepage:<input type='url' name='homepage'><select multiple><option value='volvo'>Volvo</option><option value='saab'>Saab</option><option value='mercedes'>Mercedes</option><option value='audi'>Audi</option></select><br><input type='checkbox' name='vehicle' value='Bike'> I have a bike<br><input type='checkbox' name='vehicle' value='Car'> I have a car<br><input type='radio' name='sex' value='male'>Male<br><input type='radio' name='sex' value='female'>Female", {yfunction: function(returnval){}});
+        

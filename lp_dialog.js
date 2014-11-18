@@ -119,7 +119,7 @@
 	 	 * extra_top_margin : add extra top margin to the centered element
 		*/
 		var settings = $.extend({
-			relevantTo: "parent",
+			relevantTo: "window",
 			extra_top_margin: 0,
 		}, options);
 

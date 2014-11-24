@@ -233,7 +233,7 @@
 		
 		// create all the extra DOM elements needed
 		var htmlString = "<div id='lp_dialog_window'><img src='"+settings.exit_button_img_url+"' class='lp_dialog_exit_button' /><span id='lp_dialog_message'>"+message+"</span><footer></footer></div>";
-		$(htmlString).prependTo('body');
+		$(htmlString).prependTo('html');
 		$("body").disabler("disable");
 
 		// window general css
@@ -302,6 +302,10 @@
 
 			$("#lp_dialog_window button").css("right", "15px");
 
+			$("#lp_dialog_window").hvcenter();
+			// pop-up animation
+			if(settings.pop) pop();
+
 			$("#lp_dialog_window button").click(close_window);
 		}
 		else if(action === "confirm") {
@@ -316,6 +320,10 @@
 
 			$("#lp_dialog_ybutton").css("right", "140px");
 			$("#lp_dialog_nbutton").css("right", "15px");
+
+			$("#lp_dialog_window").hvcenter();
+			// pop-up animation
+			if(settings.pop) pop();
 
 			$("#lp_dialog_ybutton").click(function() {
 				close_window();
@@ -337,10 +345,6 @@
 
 			// add text input
 			$("<input type='text' placeholder='"+settings.placeholder+"'/>").appendTo('#lp_dialog_message');
-
-			// readjust height
-			$("#lp_dialog_window").css("height", ($("#lp_dialog_message").height() > settings.window_min_height-74 ? $("#lp_dialog_message").height()+84 : settings.window_min_height));
-			$("#lp_dialog_window").hvcenter();
 			
 			$("#lp_dialog_message input").css({
 				// default and unmoderatable values
@@ -351,6 +355,12 @@
 				"width": settings.inputWidth,
 				"height": settings.inputHeight
 			});
+
+			// readjust height
+			$("#lp_dialog_window").css("height", ($("#lp_dialog_message").height() > settings.window_min_height-74 ? $("#lp_dialog_message").height()+84 : settings.window_min_height));
+			$("#lp_dialog_window").hvcenter();
+			// pop-up animation
+			if(settings.pop) pop();
 
 			$("#lp_dialog_message input").focus(); // request focus
 
@@ -383,21 +393,6 @@
 				$(wrapper+" "+element.selector).css(element.style);
 			});
 
-			// handle images
-			var images = $(wrapper).find("img");
-			if(images.length > 0) {
-				$.each(images, function(index, img) {
-					$(img).load(function() {
-						if(index == images.length - 1) {
-							// if there are images readjust window height after they have been
-							// loaded (due to browser's lazy image loading)
-							$("#lp_dialog_window").css("height", ($("#lp_dialog_message").height() > settings.window_min_height-74 ? $("#lp_dialog_message").height()+84 : settings.window_min_height));
-							$("#lp_dialog_window").hvcenter();		
-						}
-					});
-				});
-			}
-
 			// add buttons
 			switch(settings.buttons_num) {
 				case 1:
@@ -411,6 +406,28 @@
 					break;
 				default:
 					break;
+			}
+
+			// handle images
+			var images = $(wrapper).find("img");
+			if(images.length > 0) {
+				$.each(images, function(index, img) {
+					$(img).load(function() {
+						if(index == images.length - 1) {
+							// if there are images readjust window height after they have been
+							// loaded (due to browser's lazy image loading)
+							$("#lp_dialog_window").css("height", ($("#lp_dialog_message").height() > settings.window_min_height-74 ? $("#lp_dialog_message").height()+84 : settings.window_min_height));
+							$("#lp_dialog_window").hvcenter();
+							// pop-up animation
+							if(settings.pop) pop();
+						}
+					});
+				});
+			}
+			else{
+				$("#lp_dialog_window").hvcenter();
+				// pop-up animation
+				if(settings.pop) pop();
 			}
 
 			$("#lp_dialog_ybutton").click(function() {
@@ -489,18 +506,9 @@
 			"color": settings.btnfntcolor
 		});
 
-		$("#lp_dialog_window").hvcenter();
-
-		// pop-up animation
-		if(settings.pop) {
-			var finheight = $("#lp_dialog_window").height(), finwidth = $("#lp_dialog_window").width();
-			$("#lp_dialog_window").css({"height": 0, "width": 0, "top": finheight/2, "left": finwidth/2});
-			$("#lp_dialog_window").animate({height: finheight+10, width: finwidth+10, top: -5, left: -5}).animate({height: finheight, width: finwidth, top: 0, left: 0}, 250);
-		}
-
 		// common listeners for all dialog windows
 		if(settings.exit_on_out_click) {
-			$(".body_disabler").click(close_window);
+			$(".jQlp_disabler").click(close_window);
 		}
 
 		$("#lp_dialog_window .lp_dialog_exit_button").click(close_window);
@@ -529,6 +537,12 @@
 				$("div[id^='lp_dialog_']").remove();
 				$("body").disabler("enable");
 			}
+		}
+
+		function pop() {
+			var finheight = $("#lp_dialog_window").height(), finwidth = $("#lp_dialog_window").width();
+			$("#lp_dialog_window").css({"height": 0, "width": 0, "top": finheight/2, "left": finwidth/2});
+			$("#lp_dialog_window").animate({height: finheight+10, width: finwidth+10, top: -5, left: -5}).animate({height: finheight, width: finwidth, top: 0, left: 0}, 250);
 		}
 
 	};

@@ -7,6 +7,13 @@
 /* How to use? : Check the GitHub README
 /* ----------------------------------------------- */
 
+	/*
+	 * global variable accross functions containing the
+	 * path to the script, respectively,relative
+	 * to the caller html file
+	*/
+	var lp_path = document.currentScript.src.substr(0, document.currentScript.src.lastIndexOf("/")+1);
+
 	$.fn.disabler = function(action, options) {
 	/*
 	 * Disable an area by placing an extra div on top overlapping it
@@ -117,10 +124,12 @@
 		/*
 		 * relevantTo : whether the element will be centered relevant to its parent or the window
 	 	 * extra_top_margin : add extra top margin to the centered element
+	 	 * extra_side_margin : add extra side(left) margin
 		*/
 		var settings = $.extend({
 			relevantTo: "window",
 			extra_top_margin: 0,
+			extra_side_margin: 0
 		}, options);
 
 		// check if element is in DOM
@@ -130,11 +139,11 @@
 		var top_margin, side_margin; 
 		if(settings.relevantTo === "parent") {
 			top_margin = this.parent().height()/2 - this.position().top - this.height()/2 + settings.extra_top_margin;
-			side_margin = this.parent().width()/2 - this.width()/2;
+			side_margin = this.parent().width()/2 - this.width()/2 + settings.extra_side_margin;
 		}
 		else if(settings.relevantTo === "window") {
-			top_margin = $(window).height()/2 - this.offset().top - this.height()/2 + settings.extra_top_margin;
-			side_margin = $(window).width()/2 - this.width()/2;
+			top_margin = $(window).height()/2 - this.height()/2 + settings.extra_top_margin;
+			side_margin = $(window).width()/2 - this.width()/2 + settings.extra_side_margin;
 		}
 
 		// if element is bigger than parent/window:
@@ -143,7 +152,7 @@
 
 		// if position relative use auto margin, else calculate margin from parent's or window's width
 		if(this.css("position") === "relative") this.css({"margin-top": top_margin, "margin-right": "auto", "margin-left": "auto"});
-		else this.css({"margin-top": top_margin, "margin-right": side_margin, "margin-left": side_margin});
+		else this.css({"margin-top": top_margin, "margin-left": side_margin});
 	};
 
 	$.lp_dialog = function(action, message, options) {
@@ -156,7 +165,6 @@
 	 * @message : (required) the message to be shown in the dialog. In the custom dialog window it holds the whole html of the window
 	 * @options : (optional) set of options for appearence and behaviour
 	*/
-
 
 		/*
 		 * default settings for the popup windows:
@@ -198,6 +206,7 @@
 		 * inputWidth : the width of input element in prompt dialog
 		 * inputHeight : the height of the input element in prompt dialog
 	 	 * pop : add pop-up and close animation
+	 	 * center_content : centers the content to be displayed in the dialog window (all the content should be placed in a div element)
 		*/
 		var settings = $.extend({ 
 			window_width:450,
@@ -207,16 +216,16 @@
 			nbutton:"Cancel",
 			nfunction:function(){},
 			exit_on_out_click:false,
-			exit_button_img_url:"images/exit_button.ico",
+			exit_button_img_url:lp_path+"images/exit_button.ico",
 			fntcolor:"black",
 			fntsize:"85%",
 			font: "inherit",
 			bgcolor:"white",
 			bgimg:"none",
 			bgsize:"cover",
-			btnimg:"images/button.png",
+			btnimg:lp_path+"images/button.png",
 			nbtndiff:true,
-			nbtnimg:"images/nbutton.png",
+			nbtnimg:lp_path+"images/nbutton.png",
 			btnfntcolor:"white",
 			rounded:true,
 			colored_footer:true,
@@ -226,21 +235,22 @@
 			placeholder: "",
 			inputWidth: "auto",
 			inputHeight: "auto",
-			pop: true
+			pop: true,
+			center_content: false
 		}, options);
 
 		// common styles for all windows
 		
 		// create all the extra DOM elements needed
-		var htmlString = "<div id='lp_dialog_window'><img src='"+settings.exit_button_img_url+"' class='lp_dialog_exit_button' /><span id='lp_dialog_message'>"+message+"</span><footer></footer></div>";
-		$(htmlString).prependTo('html');
+		var htmlString = "<div id='lp_dialog_window'><img src='"+settings.exit_button_img_url+"' class='lp_dialog_exit_button' /><div id='lp_dialog_message'>"+(action != "custom" ? "<div>" : "")+message+(action != "custom" ? "</div>" : "")+"</div><footer></footer></div>";
+		$(htmlString).prependTo('body');
 		$("body").disabler("disable");
 
 		// window general css
 		$("#lp_dialog_window").css({
 			// default and unmoderatable values
 			"z-index": 1500,
-			"position": "absolute",
+			"position": "fixed",
 			"overflow": "hidden",
 			// moderatable values
 			"width": settings.window_width,
@@ -252,7 +262,7 @@
 			"font-family": settings.font
 		});
 
-		// exit button and text style are all predefined with no editable parameters
+		// exit button and texist style are all predefined with no editable parameters
 		$("#lp_dialog_window .lp_dialog_exit_button").css({
 			"width": 10,
 			"height": 10,
@@ -262,12 +272,17 @@
 			"cursor": "pointer"
 		});
 		$("#lp_dialog_message").css({
-			"width": "90%",
-			"margin-right": "5%",
-			"margin-left": "5%",
+			// default and unmoderatable values
+			"width": "95%",
+			"height": "calc(100% - 100px)",
+			"margin-right": "2.5%",
+			"margin-left": "2.5%",
 			"margin-top": "30px",
 			"position": "absolute",
-			"word-wrap": "break-word"
+			"word-wrap": "break-word",
+			"overflow-y": "auto",
+			// moderatable values
+			"text-align": settings.center_content ? "center" : "auto"
 		});
 
 		/*
@@ -480,6 +495,11 @@
 			return;
 		}
 
+		if(settings.center_content) {
+			$("#lp_dialog_message > div").css('display', 'table');
+			$("#lp_dialog_message > div").hvcenter({relevantTo: "parent"});
+		}
+
 		// common style for buttons after they have been set
 		$("#lp_dialog_window footer button").css({
 			// default and unmoderatable values
@@ -547,4 +567,4 @@
 
 	};
 
-})(jQuery);
+}(jQuery));
